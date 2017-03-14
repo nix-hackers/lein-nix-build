@@ -1,5 +1,5 @@
-let pkgs = import <nixpkgs> {}; in
-{ buildMaven ? pkgs.buildMaven
+{ pkgs ? import <nixpkgs> {}
+, buildMaven ? pkgs.buildMaven
 , leiningen ? pkgs.leiningen
 , jdk ? pkgs.jdk
 , stdenv ? pkgs.stdenv
