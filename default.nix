@@ -1,3 +1,4 @@
+args@
 { pkgs ? import <nixpkgs> {}
 , buildMaven ? pkgs.buildMaven
 , leiningen ? pkgs.leiningen
@@ -5,17 +6,23 @@
 , stdenv ? pkgs.stdenv
 , project ? <project>
 , uberjarName ? "*standalone.jar"
+, buildPhase ? "lein uberjar"
+, checkPhase ? "lein test"
+, doCheck ? false
+, ...
 }:
 let
   inherit (buildMaven (project + "/project-info.json")) repo build info;
-in stdenv.mkDerivation {
-  name = "${info.project.artifactId}-${info.project.version}-standalone.jar";
+  inherit (info.project) artifactId version;
+in stdenv.mkDerivation (args // {
+  name = "${artifactId}-${version}-standalone.jar";
 
   inherit (build) src;
+  inherit version buildPhase checkPhase doCheck;
 
-  buildInputs = [ leiningen ];
+  buildInputs = [ leiningen ] ++ (args.buildInputs or []);
 
-  nativeBuildInputs = [ pkgs.makeWrapper ];
+  nativeBuildInputs = [ pkgs.makeWrapper ] ++ (args.nativeBuildInputs or []);
 
   LEIN_OFFLINE = 1;
 
@@ -25,11 +32,9 @@ in stdenv.mkDerivation {
     ln -s ${jdk}/bin/java java
     wrapProgram java --add-flags -Duser.home=$PWD/home
     export LEIN_JAVA_CMD=$PWD/java
-  '';
-
-  buildPhase = "lein uberjar";
+  '' + (args.configurePhase or "");
 
   installPhase = ''
     find . -name '${uberjarName}' -exec mv '{}' $out \;
   '';
-}
+})
