@@ -6,8 +6,9 @@ args@
 , stdenv ? pkgs.stdenv
 , project ? <project>
 , uberjarName ? "*standalone.jar"
-, buildPhase ? "lein uberjar"
-, checkPhase ? "lein test"
+, leinProfile ? "provided"
+, buildPhase ? "lein with-profile ${leinProfile} uberjar"
+, checkPhase ? "lein with-profile ${leinProfile} test"
 , doCheck ? false
 , ...
 }:
