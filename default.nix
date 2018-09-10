@@ -33,6 +33,7 @@ in stdenv.mkDerivation (args // {
     ln -s ${jdk}/bin/java java
     wrapProgram java --add-flags -Duser.home=$PWD/home
     export LEIN_JAVA_CMD=$PWD/java
+    export HOME=home
   '' + (args.configurePhase or "");
 
   installPhase = ''
